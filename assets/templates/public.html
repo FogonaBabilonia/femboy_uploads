@@ -1,0 +1,13 @@
+{{ template "root" . }}
+{{define "style"}}{{ end }}
+
+{{define "title"}}
+    <title> {{ .title }} </title>
+{{ end }}
+
+{{ define "body" }}
+    <form action="/api/public/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file_upload">
+        <input type="submit" value="submit">
+    </form>
+{{ end }}

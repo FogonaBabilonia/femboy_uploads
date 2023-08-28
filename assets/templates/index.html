@@ -1,0 +1,19 @@
+{{ template "root" . }}
+{{define "style"}}
+    <link rel="stylesheet" href="/assets/static/css/index.css">
+{{ end }}
+{{define "title"}}
+    <title> {{ .title }} </title>
+{{ end }}
+
+{{ define "body" }}
+    <div id="center">
+        <div id="card">
+            <h1 id="header">{{ .msg }}</h1>
+            <div id="create_acc" class="redirect">Create account</div>
+            <div id="login_btn" class="redirect">Login</div>
+            <div id="scd_div" class="redirect">Public</div>
+        </div>
+    </div>
+    <script src="/assets/static/js/index.js"></script>
+{{ end }}

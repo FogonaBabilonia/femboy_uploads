@@ -1,0 +1,11 @@
+{{ template "root" . }}
+{{define "style"}}
+    <link rel="stylesheet">
+{{ end }}
+{{define "title"}}
+    <title> {{ .title }} </title>
+{{ end }}
+
+{{ define "body" }}
+    <form action="/api/login" method="post"></form>
+{{ end }}
