@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/FogonaBabilonia/femboy_uploads/database"
+	"github.com/FogonaBabilonia/femboy_uploads/models"
 	"github.com/FogonaBabilonia/femboy_uploads/services"
 	"github.com/gin-gonic/gin"
 )
@@ -32,5 +34,30 @@ func UploadFile(c *gin.Context) {
 }
 
 func Create_User(c *gin.Context) {
+	user := new(models.Create_User)
 
+	if err := c.ShouldBind(user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "could not create the user",
+		})
+		return
+	}
+
+	db_user, err := models.NewUser(user.Name, user.Password)
+
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	}
+
+	if err := database.DB.Create(db_user).Error; err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"created_user": db_user,
+	})
 }
