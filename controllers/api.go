@@ -1,39 +1,33 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
+	"github.com/FogonaBabilonia/femboy_uploads/auth"
 	"github.com/FogonaBabilonia/femboy_uploads/database"
 	"github.com/FogonaBabilonia/femboy_uploads/models"
 	"github.com/FogonaBabilonia/femboy_uploads/services"
 	"github.com/gin-gonic/gin"
 )
 
-func UploadFile(c *gin.Context) {
+func HandleUploadFile(c *gin.Context) {
 	file, err := c.FormFile("file_upload")
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"msg": fmt.Errorf("error: %s", err.Error()),
-		})
+		c.String(http.StatusBadRequest, "Error, bad request")
 		return
 	}
 
 	filename := services.Format_filename(file.Filename)
 	if err := c.SaveUploadedFile(file, "./uploads/"+filename); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"msg": fmt.Errorf("error: %s", err.Error()),
-		})
+		c.String(http.StatusInternalServerError, "Server error, could not save file")
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"msg": fmt.Sprintf("created file: %v", filename),
-	})
+	c.String(http.StatusCreated, "created file: %v", filename)
 }
 
-func Create_User(c *gin.Context) {
+func HandleCreate_User(c *gin.Context) {
 	user := new(models.Create_User)
 
 	if err := c.ShouldBind(user); err != nil {
@@ -57,7 +51,42 @@ func Create_User(c *gin.Context) {
 		})
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"created_user": db_user,
-	})
+	generate_jwt_and_redirect(c, db_user)
+}
+
+func HandleLogin(c *gin.Context) {
+	user := new(models.SignIn_User)
+
+	if err := c.ShouldBind(user); err != nil {
+		c.String(http.StatusBadRequest, "bad request")
+		return
+	}
+
+	authenticated := auth.ValidatePassword(user)
+	if !authenticated {
+		c.String(http.StatusBadRequest, "wrong username or password")
+		return
+	}
+
+	db_user, err := models.NewUser(user.Name, user.Password)
+
+	if err != nil {
+		c.String(http.StatusInternalServerError, "could not create user due to server error")
+		return
+	}
+
+	generate_jwt_and_redirect(c, db_user)
+}
+
+func generate_jwt_and_redirect(c *gin.Context, db_user *models.User) {
+	jwt_token, err := auth.GenerateToken(db_user.ID)
+
+	if err != nil {
+		c.String(http.StatusInternalServerError, "could not login the user")
+		return
+	}
+
+	c.SetCookie("jwt", jwt_token, 600, "/", "localhost", false, false)
+	//c.Redirect(http.StatusPermanentRedirect, "/user")
+	c.String(http.StatusOK, "Ok")
 }

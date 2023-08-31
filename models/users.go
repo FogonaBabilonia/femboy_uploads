@@ -5,15 +5,23 @@ import (
 	"gorm.io/gorm"
 )
 
+type base_user struct {
+	Name     string `form:"name" binding:"required,min=4,max=36"`
+	Password string `form:"password" binding:"required,min=8,max=36"`
+}
+
 type User struct {
-	*gorm.Model
+	gorm.Model
 	Name     string `json:"name"`
 	Password string `json:"-"`
 }
 
 type Create_User struct {
-	Name     string `form:"name" binding:"required"`
-	Password string `form:"password" binding:"required"`
+	base_user
+}
+
+type SignIn_User struct {
+	base_user
 }
 
 func NewUser(name, password string) (*User, error) {

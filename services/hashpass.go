@@ -1,6 +1,12 @@
 package services
 
-import "golang.org/x/crypto/bcrypt"
+import (
+	"golang.org/x/crypto/bcrypt"
+)
+
+type user interface {
+	password() string
+}
 
 func GeneratePassword(password string) (string, error) {
 	hashpass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -10,8 +16,4 @@ func GeneratePassword(password string) (string, error) {
 	}
 
 	return string(hashpass), nil
-}
-
-func ValidatePassword() bool {
-	return false
 }
