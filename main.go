@@ -1,8 +1,6 @@
 package main
 
 import (
-	"os"
-
 	"github.com/FogonaBabilonia/femboy_uploads/config"
 	"github.com/FogonaBabilonia/femboy_uploads/database"
 	"github.com/FogonaBabilonia/femboy_uploads/routes"
@@ -10,17 +8,14 @@ import (
 )
 
 func load_env() {
-	err := godotenv.Load()
-
-	if err != nil {
+	if err := godotenv.Load(); err != nil {
 		panic(err)
 	}
-
-	config.Secret_key = os.Getenv("JWT_SECRET_KEY")
 }
 
 func init() {
 	load_env()
+	config.Load_key()
 	database.ConnectDatabase()
 }
 

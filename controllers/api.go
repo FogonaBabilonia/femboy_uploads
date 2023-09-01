@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/FogonaBabilonia/femboy_uploads/auth"
@@ -80,6 +81,7 @@ func HandleLogin(c *gin.Context) {
 
 func generate_jwt_and_redirect(c *gin.Context, db_user *models.User) {
 	jwt_token, err := auth.GenerateToken(db_user.ID)
+	fmt.Println("generating token for user", db_user.ID, db_user.Name)
 
 	if err != nil {
 		c.String(http.StatusInternalServerError, "could not login the user")
