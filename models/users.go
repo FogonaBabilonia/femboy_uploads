@@ -6,7 +6,7 @@ import (
 )
 
 type base_user struct {
-	Name     string `form:"name" binding:"required,min=4,max=36" gorm:"uniqueIndex"`
+	Name     string `form:"name" binding:"required,min=4,max=36"`
 	Password string `form:"password" binding:"required,min=8,max=36"`
 }
 

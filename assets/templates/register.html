@@ -6,8 +6,10 @@
 {{ end }}
 
 {{ define "body" }}
-    <form action="/api/public/upload" method="post" enctype="text/plain">
-        <input type="file" name="file_upload">
+    <form action="/api/register" method="post">
+        <input type="text" name="name" value="name">
+        <input type="text" name="password" value="pass">
         <input type="submit" value="submit">
     </form>
+
 {{ end }}

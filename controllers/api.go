@@ -31,28 +31,31 @@ func HandleUploadFile(c *gin.Context) {
 func HandleCreate_User(c *gin.Context) {
 	user := new(models.Create_User)
 
-	if err := c.ShouldBind(user); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "could not create the user",
-		})
+	if err := c.Bind(user); err != nil {
+		fmt.Println(err)
+		c.String(http.StatusBadRequest, "could not create the user")
+		return
+	}
+
+	exists := new(models.User)
+	if err := database.DB.Where("name = ?", user.Name).First(exists).Error; err == nil {
+		c.String(http.StatusBadRequest, "username already used")
 		return
 	}
 
 	db_user, err := models.NewUser(user.Name, user.Password)
 
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.String(http.StatusBadRequest, err.Error())
+		return
 	}
 
 	if err := database.DB.Create(db_user).Error; err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.String(http.StatusBadRequest, err.Error())
+		return
 	}
 
-	generate_jwt_and_redirect(c, db_user)
+	generate_jwt_and_redirect(c, db_user.ID)
 }
 
 func HandleLogin(c *gin.Context) {
@@ -63,25 +66,17 @@ func HandleLogin(c *gin.Context) {
 		return
 	}
 
-	authenticated := auth.ValidatePassword(user)
+	authenticated, id := auth.ValidatePassword(user)
 	if !authenticated {
 		c.String(http.StatusBadRequest, "wrong username or password")
 		return
 	}
 
-	db_user, err := models.NewUser(user.Name, user.Password)
-
-	if err != nil {
-		c.String(http.StatusInternalServerError, "could not create user due to server error")
-		return
-	}
-
-	generate_jwt_and_redirect(c, db_user)
+	generate_jwt_and_redirect(c, id)
 }
 
-func generate_jwt_and_redirect(c *gin.Context, db_user *models.User) {
-	jwt_token, err := auth.GenerateToken(db_user.ID)
-	fmt.Println("generating token for user", db_user.ID, db_user.Name)
+func generate_jwt_and_redirect(c *gin.Context, id uint) {
+	jwt_token, err := auth.GenerateToken(id)
 
 	if err != nil {
 		c.String(http.StatusInternalServerError, "could not login the user")
@@ -89,6 +84,5 @@ func generate_jwt_and_redirect(c *gin.Context, db_user *models.User) {
 	}
 
 	c.SetCookie("jwt", jwt_token, 600, "/", "localhost", false, false)
-	//c.Redirect(http.StatusPermanentRedirect, "/user")
-	c.String(http.StatusOK, "Ok")
+	c.Redirect(301, "/user")
 }

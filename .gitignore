@@ -2,3 +2,4 @@ bin
 uploads
 database.db
 .env
+todo.txt
