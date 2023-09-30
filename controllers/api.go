@@ -83,6 +83,6 @@ func generate_jwt_and_redirect(c *gin.Context, user string) {
 		return
 	}
 
-	c.SetCookie("jwt", jwt_token, 600, "/", "localhost", false, false)
+	c.SetCookie("jwt", jwt_token, 300, "/", "localhost", false, false)
 	c.Redirect(301, "/user")
 }

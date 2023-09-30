@@ -17,7 +17,7 @@ func GenerateToken(username string) (string, error) {
 	claims := claims{
 		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(10 * time.Minute)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(5 * time.Minute)),
 		},
 	}
 
@@ -39,17 +39,13 @@ func AuthWithToken(token_string string) (bool, string) {
 	clm := claims{}
 	token, err := validateToken(token_string, &clm)
 
-	if err != nil {
-		if err == jwt.ErrSignatureInvalid {
-			return false, ""
-		}
-	}
-
-	if !token.Valid {
+	if err != nil || !token.Valid {
 		return false, ""
 	}
 
+	// if !token.Valid {
+	// 	return false, ""
+	// }
+
 	return true, clm.Username
 }
-
-//func refreshToken() {}

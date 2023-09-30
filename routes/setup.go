@@ -2,6 +2,7 @@ package routes
 
 import (
 	"github.com/FogonaBabilonia/femboy_uploads/controllers"
+	"github.com/FogonaBabilonia/femboy_uploads/middleware"
 	"github.com/gin-gonic/gin"
 )
 
@@ -23,7 +24,8 @@ func (s *Server) setup() {
 	api_routes := s.router.Group("/api")
 	user_routes := s.router.Group("/")
 
-	user_routes.Use() // add middleware later on
+	user_routes.Use(middleware.CheckAuth())
+	user_routes.Use(middleware.RefreshCookie())
 
 	user_routes.GET("/", controllers.HandleRootPage)
 	user_routes.GET("/login", controllers.HandleLoginPage)
