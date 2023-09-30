@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 
+	"github.com/FogonaBabilonia/femboy_uploads/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -32,5 +34,19 @@ func HandlePublicPage(c *gin.Context) {
 }
 
 func HandleUserPage(c *gin.Context) {
-	c.String(http.StatusOK, "You are logged")
+	cookie, err := c.Cookie("jwt")
+
+	if err == http.ErrNoCookie {
+		c.String(http.StatusUnauthorized, "You are not logged")
+		return
+	}
+
+	logged, username := auth.AuthWithToken(cookie)
+
+	if !logged {
+		c.String(http.StatusUnauthorized, "You are not logged")
+		return
+	}
+
+	c.String(http.StatusOK, fmt.Sprintf("You are logged as %v", username))
 }

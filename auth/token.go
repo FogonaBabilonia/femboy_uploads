@@ -9,13 +9,13 @@ import (
 )
 
 type claims struct {
-	ID uint
+	Username string
 	jwt.RegisteredClaims
 }
 
-func GenerateToken(id uint) (string, error) {
+func GenerateToken(username string) (string, error) {
 	claims := claims{
-		ID: id,
+		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(10 * time.Minute)),
 		},
@@ -25,8 +25,8 @@ func GenerateToken(id uint) (string, error) {
 	return token.SignedString([]byte(config.Secret_key))
 }
 
-func ValidateToken(token_string string) (*jwt.Token, error) {
-	return jwt.ParseWithClaims(token_string, &claims{}, func(t *jwt.Token) (any, error) {
+func validateToken(token_string string, clm *claims) (*jwt.Token, error) {
+	return jwt.ParseWithClaims(token_string, clm, func(t *jwt.Token) (any, error) {
 		if _, ok := t.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", t.Header["alg"])
 		}
@@ -34,3 +34,22 @@ func ValidateToken(token_string string) (*jwt.Token, error) {
 		return []byte(config.Secret_key), nil
 	})
 }
+
+func AuthWithToken(token_string string) (bool, string) {
+	clm := claims{}
+	token, err := validateToken(token_string, &clm)
+
+	if err != nil {
+		if err == jwt.ErrSignatureInvalid {
+			return false, ""
+		}
+	}
+
+	if !token.Valid {
+		return false, ""
+	}
+
+	return true, clm.Username
+}
+
+//func refreshToken() {}

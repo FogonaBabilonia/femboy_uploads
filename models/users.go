@@ -1,6 +1,8 @@
 package models
 
 import (
+	"time"
+
 	"github.com/FogonaBabilonia/femboy_uploads/services"
 	"gorm.io/gorm"
 )
@@ -10,8 +12,15 @@ type base_user struct {
 	Password string `form:"password" binding:"required,min=8,max=36"`
 }
 
+type model struct {
+	ID        uint           `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+}
+
 type User struct {
-	gorm.Model
+	model
 	Name     string `json:"name"`
 	Password string `json:"-"`
 }

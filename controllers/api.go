@@ -55,7 +55,7 @@ func HandleCreate_User(c *gin.Context) {
 		return
 	}
 
-	generate_jwt_and_redirect(c, db_user.ID)
+	generate_jwt_and_redirect(c, db_user.Name)
 }
 
 func HandleLogin(c *gin.Context) {
@@ -66,17 +66,17 @@ func HandleLogin(c *gin.Context) {
 		return
 	}
 
-	authenticated, id := auth.ValidatePassword(user)
+	authenticated := auth.ValidatePassword(user)
 	if !authenticated {
 		c.String(http.StatusBadRequest, "wrong username or password")
 		return
 	}
 
-	generate_jwt_and_redirect(c, id)
+	generate_jwt_and_redirect(c, user.Name)
 }
 
-func generate_jwt_and_redirect(c *gin.Context, id uint) {
-	jwt_token, err := auth.GenerateToken(id)
+func generate_jwt_and_redirect(c *gin.Context, user string) {
+	jwt_token, err := auth.GenerateToken(user)
 
 	if err != nil {
 		c.String(http.StatusInternalServerError, "could not login the user")
