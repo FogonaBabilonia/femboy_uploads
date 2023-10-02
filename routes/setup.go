@@ -20,6 +20,7 @@ func NewServer(addr string) *Server {
 
 func (s *Server) setup() {
 	s.router.HTMLRender = create_render()
+	s.router.Static("/assets", "./assets/static")
 
 	api_routes := s.router.Group("/api")
 	user_routes := s.router.Group("/")
